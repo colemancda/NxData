@@ -1,4 +1,5 @@
 import Foundation
+import System
 
 /// NX Data File
 ///
@@ -9,11 +10,14 @@ public actor NxFile {
     
     public static var fileExtension: String { "nx" }
     
-    public let path: String
+    public nonisolated let path: FilePath
+    
+    public let handle: FileDescriptor
     
     internal var cache = Cache()
     
-    public init(path: String) {
+    public init(path: FilePath) throws {
+        self.handle = try FileDescriptor.open(path, .readOnly, options: [], retryOnInterrupt: true)
         self.path = path
     }
     
@@ -37,12 +41,29 @@ public actor NxFile {
                 return cached
             } else {
                 let data = try Data(
-                    contentsOf: URL(fileURLWithPath: path),
+                    contentsOf: URL(fileURLWithPath: path.description),
                     options: [.alwaysMapped]
                 )
                 cache.data = data
                 return data
             }
+        }
+    }
+}
+
+internal extension NxFile {
+    
+    func withFileHandle<Result>(_ block: (FileDescriptor) throws -> (Result)) rethrows -> Result {
+        try block(handle)
+    }
+    
+    func read(at offset: Int, into buffer: UnsafeMutableRawBufferPointer) throws -> Int {
+        return try handle.read(fromAbsoluteOffset: Int64(offset), into: buffer, retryOnInterrupt: true)
+    }
+    
+    func read<T>(at offset: Int, into value: inout T) throws -> Int {
+        try withUnsafeMutableBytes(of: &value) { buffer in
+            try handle.read(fromAbsoluteOffset: Int64(offset), into: buffer, retryOnInterrupt: true)
         }
     }
 }

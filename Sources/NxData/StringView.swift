@@ -22,7 +22,7 @@ public extension NxFile {
 public extension NxFile {
     
     /// Strings Async Sequence View
-    var string: StringView {
+    nonisolated var string: StringView {
         StringView(file: self)
     }
 }

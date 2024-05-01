@@ -16,36 +16,21 @@ public actor NxFile {
     
     internal var cache = Cache()
     
+    /// Initialize from file path.
     public init(path: FilePath) throws {
         self.handle = try FileDescriptor.open(path, .readOnly, options: [], retryOnInterrupt: true)
         self.path = path
     }
     
+    /// File Header
     public var header: FileHeader {
         get async throws {
             if let cached = cache.header {
                 return cached
             } else {
-                guard let header = try await FileHeader(data: data.prefix(FileHeader.length)) else {
-                    throw CocoaError(.fileReadCorruptFile)
-                }
+                let header = try FileHeader(file: handle)
                 cache.header = header
                 return header
-            }
-        }
-    }
-    
-    public var data: Data {
-        get async throws {
-            if let cached = cache.data {
-                return cached
-            } else {
-                let data = try Data(
-                    contentsOf: URL(fileURLWithPath: path.description),
-                    options: [.alwaysMapped]
-                )
-                cache.data = data
-                return data
             }
         }
     }

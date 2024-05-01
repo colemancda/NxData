@@ -8,7 +8,7 @@
 import Foundation
 
 /// Nx Audio Data
-public struct Audio: Equatable, Hashable, Codable, Sendable {
+public struct Audio: Equatable, Hashable, Codable, Sendable, Identifiable {
     
     /// Audio Identifier
     public let id: ID

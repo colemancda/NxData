@@ -8,7 +8,7 @@
 import Foundation
 
 /// Nx Bitmap Data
-public struct Bitmap: Equatable, Hashable, Codable, Sendable {
+public struct Bitmap: Equatable, Hashable, Codable, Sendable, Identifiable {
     
     /// Bitmap Identifier
     public let id: ID

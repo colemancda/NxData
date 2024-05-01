@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import AsyncAlgorithms
 
 public extension NxFile {
     
@@ -44,16 +43,16 @@ internal extension NxFile {
 
 public extension NxFile.StringView {
     
-    var count: Int {
+    var count: UInt32 {
         get async throws {
-            try await Int(file.header.stringCount)
+            try await file.header.stringCount
         }
     }
     
-    subscript(index: Int) -> String {
+    subscript(index: StringID) -> String {
         get async throws {
             let offsetTable = try await file.stringOffsetTable
-            let stringOffset = try await offsetTable[UInt32(index)]
+            let stringOffset = try await offsetTable[index.rawValue]
             var stringLength: UInt16 = 0
             var bytesRead = try await file.read(at: Int(stringOffset), into: &stringLength)
             guard bytesRead == 2 else {
@@ -82,20 +81,22 @@ public extension NxFile.StringView {
 
 extension NxFile.StringView: AsyncSequence {
     
+    public typealias Index = StringID
+    
     public typealias Element = String
     
     public struct AsyncIterator: AsyncIteratorProtocol {
         
         let strings: NxFile.StringView
         
-        var index: Int = 0
+        var index: UInt32 = 0
         
         public mutating func next() async throws -> String? {
             let count = try await strings.count
             guard index < count else {
                 return nil
             }
-            let element = try await strings[index]
+            let element = try await strings[.init(rawValue: index)]
             index += 1
             return element
         }

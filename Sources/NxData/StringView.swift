@@ -77,7 +77,7 @@ public extension NxFile.StringView {
         }
     }
 }
-/*
+
 // MARK: - AsyncSequence
 
 extension NxFile.StringView: AsyncSequence {
@@ -86,13 +86,22 @@ extension NxFile.StringView: AsyncSequence {
     
     public struct AsyncIterator: AsyncIteratorProtocol {
         
+        let strings: NxFile.StringView
+        
         var index: Int = 0
         
-        
+        public mutating func next() async throws -> String? {
+            let count = try await strings.count
+            guard index < count else {
+                return nil
+            }
+            let element = try await strings[index]
+            index += 1
+            return element
+        }
     }
     
     public func makeAsyncIterator() -> AsyncIterator {
-        AsyncIterator(index: )
+        AsyncIterator(strings: self)
     }
 }
-*/

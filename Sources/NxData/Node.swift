@@ -16,15 +16,50 @@ import Foundation
 
  The base node should have an ID of 0, and preferably have type 0 (None).
  */
-public struct Node: Equatable, Hashable, Codable, Identifiable, Sendable {
+public struct Node: Equatable, Hashable, Codable, Sendable {
     
     public static var length: Int { 20 }
     
-    public let id: ID
+    public let name: StringID
     
-    public var firstChild: Node.ID
+    public var firstChild: Node.ID?
     
     public var childrenCount: UInt16
     
     public var data: NodeData
+    
+    public init(
+        name: StringID,
+        firstChild: Node.ID? = nil,
+        childrenCount: UInt16 = 0,
+        data: NodeData = .none
+    ) {
+       self.name = name
+       self.firstChild = firstChild
+       self.childrenCount = childrenCount
+       self.data = data
+   }
+}
+
+public extension Node {
+    
+    init?(data: Data) {
+        guard data.count == Self.length else {
+            return nil
+        }
+        let name = StringID(rawValue: UInt32(littleEndian: UInt32(bytes: (data[0], data[1], data[2], data[3]))))
+        let firstChild = Node.ID(rawValue: UInt32(littleEndian: UInt32(bytes: (data[4], data[5], data[6], data[7]))))
+        let childrenCount = UInt16(littleEndian: UInt16(bytes: (data[8], data[9])))
+        let rawNodeDataType = UInt16(littleEndian: UInt16(bytes: (data[10], data[11])))
+        guard let dataType = NodeDataType(rawValue: rawNodeDataType) else {
+            return nil
+        }
+        let nodeData = NodeData(unsafe: data.subdataNoCopy(in: 12 ..< 20), type: dataType)
+        self.init(
+            name: name,
+            firstChild: childrenCount > 0 ? firstChild : nil,
+            childrenCount: childrenCount,
+            data: nodeData
+        )
+    }
 }

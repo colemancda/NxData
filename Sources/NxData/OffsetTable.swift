@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import System
+import SystemPackage
 
 internal extension NxFile {
     

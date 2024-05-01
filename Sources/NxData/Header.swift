@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import System
+import SystemPackage
 
 /// NX File Header
 public struct FileHeader: Equatable, Hashable, Codable, Sendable {

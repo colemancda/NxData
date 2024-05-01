@@ -15,7 +15,10 @@ let package = Package(
         ),
         .testTarget(
             name: "NxDataTests",
-            dependencies: ["NxData"]
+            dependencies: ["NxData"],
+            resources: [
+                .copy("Data.nx"),
+            ]
         ),
     ]
 )

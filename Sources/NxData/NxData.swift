@@ -1,5 +1,5 @@
 import Foundation
-import System
+import SystemPackage
 
 /// NX Data File
 ///
@@ -20,6 +20,10 @@ public actor NxFile {
     public init(path: FilePath) throws {
         self.handle = try FileDescriptor.open(path, .readOnly, options: [], retryOnInterrupt: true)
         self.path = path
+    }
+    
+    deinit {
+        try? handle.close()
     }
     
     /// File Header
@@ -58,9 +62,7 @@ internal extension NxFile {
 internal extension NxFile {
     
     struct Cache {
-        
-        var data: Data?
-        
+                
         var header: FileHeader?
     }
 }

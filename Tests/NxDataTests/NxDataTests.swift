@@ -35,6 +35,10 @@ final class NxDataTests: XCTestCase {
         let img0001 = try await file.string[1]
         XCTAssertEqual(img0001, "0001.img")
         
-        
+        let strings = try await Array(file.string.prefix(10))
+        XCTAssertEqual(strings.count, 10)
+        strings.forEach {
+            print($0)
+        }
     }
 }

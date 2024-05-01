@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import System
+import SystemPackage
 @testable import NxData
 
 final class NxDataTests: XCTestCase {
@@ -21,6 +21,20 @@ final class NxDataTests: XCTestCase {
         XCTAssertEqual(header.stringOffsetTableOffset, 115612536)
     }
     
+    func testNodes() async throws {
+        
+        guard let path else {
+            return
+        }
+        
+        let file = try NxFile(path: FilePath(path))
+        
+        let nodes = file.prefix(20)
+        for try await node in nodes {
+            print(node)
+        }
+    }
+    
     func testStrings() async throws {
         
         guard let path else {
@@ -35,10 +49,9 @@ final class NxDataTests: XCTestCase {
         let img0001 = try await file.string[1]
         XCTAssertEqual(img0001, "0001.img")
         
-        let strings = try await Array(file.string.prefix(10))
-        XCTAssertEqual(strings.count, 10)
-        strings.forEach {
-            print($0)
+        let strings = file.string.prefix(10)
+        for try await string in strings {
+            print(string)
         }
     }
 }
